@@ -1,0 +1,21 @@
+{
+  "name": "nekosbot-gacha",
+  "version": "2.0.0",
+  "description": "NEKOSBOT GACHA - Bot de WhatsApp con sistema Gacha completo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": ["whatsapp", "bot", "gacha", "nekos"],
+  "author": "lopezdavison7-ops",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.8",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.26.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

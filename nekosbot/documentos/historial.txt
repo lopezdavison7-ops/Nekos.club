@@ -1,0 +1,31 @@
+=== HISTORIAL NEKOSBOT GACHA ===
+[23/7/2026, 1:35:33 p. m.] Error crítico: Failed to launch the browser process:  Code: 127
+
+stderr:
+/home/runner/.cache/puppeteer/chrome/linux-146.0.7680.31/chrome-linux64/chrome: error while loading shared libraries: libglib-2.0.so.0: cannot open shared object file: No such file or directory
+
+TROUBLESHOOTING: https://pptr.dev/troubleshooting
+
+[23/7/2026, 1:38:01 p. m.] Código de vinculación generado: F1YABQ28
+[23/7/2026, 1:39:01 p. m.] Código de vinculación generado: BQZX75TS
+[23/7/2026, 1:39:21 p. m.] Código de vinculación generado: 3R49EBWG
+[23/7/2026, 1:39:41 p. m.] Código de vinculación generado: J7J5H2X7
+[23/7/2026, 1:40:01 p. m.] Código de vinculación generado: 6NGY4TPN
+[23/7/2026, 1:40:21 p. m.] Código de vinculación generado: BPW8S1RN
+[23/7/2026, 1:41:31 p. m.] Código de vinculación generado: 8AH2PYWA
+[23/7/2026, 4:31:40 p. m.] Código de vinculación generado: 3J2JBRD7
+[23/7/2026, 4:32:40 p. m.] Código de vinculación generado: PPVN31BY
+[23/7/2026, 4:33:00 p. m.] Código de vinculación generado: Q27PY4LM
+[23/7/2026, 4:33:20 p. m.] Código de vinculación generado: NBT5D64X
+[23/7/2026, 4:33:40 p. m.] Código de vinculación generado: 2BFEAQDV
+[23/7/2026, 4:34:00 p. m.] Código de vinculación generado: 4QXH1MSC
+[23/7/2026, 4:35:10 p. m.] Código de vinculación generado: J3HPC18N
+[24/7/2026, 2:32:53 p. m.] Error crítico: Requesting main frame too early!
+[30/7/2026, 12:39:06 p. m.] Código de vinculación generado: 1519JDEG
+[30/7/2026, 12:40:06 p. m.] Código de vinculación generado: VBLF3NY2
+[30/7/2026, 12:40:26 p. m.] Código de vinculación generado: 1599YF8P
+[30/7/2026, 12:40:46 p. m.] Código de vinculación generado: B5D441C7
+[30/7/2026, 12:41:07 p. m.] Código de vinculación generado: NN38LL6H
+[30/7/2026, 12:41:26 p. m.] Código de vinculación generado: 6EFCYE1G
+[30/7/2026, 12:42:37 p. m.] Código de vinculación generado: G4DJNCQ1
+[30/7/2026, 7:46:05 p. m.] Código de vinculación generado: 4YLQWC5N
