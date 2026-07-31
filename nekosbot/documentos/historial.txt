@@ -42,3 +42,6 @@ TROUBLESHOOTING: https://pptr.dev/troubleshooting
 [30/7/2026, 7:50:46 p. m.] Error crítico: Protocol error (Runtime.callFunctionOn): Target closed
 [31/7/2026, 3:27:55 p. m.] Error crítico: Requesting main frame too early!
 [31/7/2026, 9:12:36 p. m.] Error crítico: Runtime.callFunctionOn timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed.
+[31/7/2026, 10:19:35 p. m.] Error crítico: Protocol error (Runtime.callFunctionOn): Target closed
+[31/7/2026, 10:20:47 p. m.] Error crítico: Protocol error (Runtime.callFunctionOn): Target closed
+[31/7/2026, 10:20:52 p. m.] Código de vinculación generado para 525548289402: 6WL8NKZN
