@@ -13,11 +13,38 @@ const axios = require('axios');
 const OWNER      = process.env.OWNER   || '50578391933@c.us';
 const API_YT     = process.env.API_YT  || 'lem916';
 const API_TT     = process.env.API_TT  || 'lem916';
-const PHONE_NUM  = '50578391933';          // número a vincular
 const DB_PATH    = './database.json';
 const HIST_DIR   = './documentos';
 const HIST_PATH  = `${HIST_DIR}/historial.txt`;
 const START_TIME = Date.now();
+
+// ──────────────── PEDIR NÚMERO POR CONSOLA ────────────────
+const readline = require('readline');
+
+function pedirNumero() {
+  return new Promise((resolve) => {
+    // Si ya está en variable de entorno, usarla directo
+    if (process.env.PHONE_NUMBER) {
+      const num = process.env.PHONE_NUMBER.replace(/\D/g, '');
+      console.log(`📞 Número cargado desde env: ${num}`);
+      return resolve(num);
+    }
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    console.log('\n╔══════════════════════════════════════╗');
+    console.log('║  📞 NEKOSBOT GACHA - CONFIGURACIÓN   ║');
+    console.log('╚══════════════════════════════════════╝');
+    rl.question('\n¿Con qué número quieres vincular el bot?\n(Incluye código de país, ej: 50578391933)\n> ', (respuesta) => {
+      rl.close();
+      const num = respuesta.trim().replace(/\D/g, '');
+      if (!num || num.length < 8) {
+        console.log('❌ Número inválido, usando número por defecto.');
+        return resolve('50578391933');
+      }
+      console.log(`✅ Número configurado: ${num}`);
+      resolve(num);
+    });
+  });
+}
 
 // ──────────────── DIRECTORIOS ────────────────
 if (!fs.existsSync(HIST_DIR)) fs.mkdirSync(HIST_DIR, { recursive: true });
@@ -168,6 +195,7 @@ const client = new Client({
   authStrategy: new LocalAuth({ clientId: 'nekosbot' }),
   puppeteer: {
     headless: true,
+    executablePath: '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
     args: [
       '--no-sandbox', '--disable-setuid-sandbox',
       '--disable-dev-shm-usage', '--disable-accelerated-2d-canvas',
@@ -176,29 +204,35 @@ const client = new Client({
   }
 });
 
-console.log('\n╔══════════════════════════════════════╗');
-console.log('║      🎮 NEKOSBOT GACHA v2.0          ║');
-console.log('║   by lopezdavison7-ops               ║');
-console.log('╚══════════════════════════════════════╝\n');
-console.log('⏳ Iniciando bot...\n');
+// ──────────────── ARRANQUE PRINCIPAL ────────────────
+async function main() {
+  console.log('\n╔══════════════════════════════════════╗');
+  console.log('║      🎮 NEKOSBOT GACHA v2.0          ║');
+  console.log('║   by lopezdavison7-ops               ║');
+  console.log('╚══════════════════════════════════════╝\n');
 
-// ──── CÓDIGO DE 8 DÍGITOS ────
-client.on('qr', async (qr) => {
-  try {
-    const code = await client.requestPairingCode(PHONE_NUM);
-    console.log('\n╔══════════════════════════════════════╗');
-    console.log('║  📱 CÓDIGO DE EMPAREJAMIENTO         ║');
-    console.log(`║  🔑 CÓDIGO: ${code.padEnd(14)}         ║`);
-    console.log(`║  📞 NÚMERO: ${PHONE_NUM.padEnd(13)}        ║`);
-    console.log('║  Ingresa el código en WhatsApp:      ║');
-    console.log('║  Ajustes > Dispositivos vinculados   ║');
-    console.log('╚══════════════════════════════════════╝\n');
-    logHistory(`Código de vinculación generado: ${code}`);
-  } catch (e) {
-    console.log('📸 QR alternativo (escanea con WhatsApp):');
-    qrcode.generate(qr, { small: true });
-  }
-});
+  // Pedir número al usuario
+  const PHONE_NUM = await pedirNumero();
+
+  console.log('\n⏳ Iniciando bot...\n');
+
+  // ──── CÓDIGO DE 8 DÍGITOS ────
+  client.on('qr', async (qr) => {
+    try {
+      const code = await client.requestPairingCode(PHONE_NUM);
+      console.log('\n╔══════════════════════════════════════╗');
+      console.log('║  📱 CÓDIGO DE EMPAREJAMIENTO         ║');
+      console.log(`║  🔑 CÓDIGO: ${code.padEnd(14)}         ║`);
+      console.log(`║  📞 NÚMERO: ${PHONE_NUM.padEnd(13)}        ║`);
+      console.log('║  Ingresa el código en WhatsApp:      ║');
+      console.log('║  Ajustes > Dispositivos vinculados   ║');
+      console.log('╚══════════════════════════════════════╝\n');
+      logHistory(`Código de vinculación generado para ${PHONE_NUM}: ${code}`);
+    } catch (e) {
+      console.log('📸 QR alternativo (escanea con WhatsApp):');
+      qrcode.generate(qr, { small: true });
+    }
+  });
 
 client.on('ready', () => {
   console.log('✅ NEKOSBOT GACHA conectado y listo!');
@@ -811,8 +845,12 @@ ${barra(user.xp, needed)}
   }
 });
 
-// ──────────────── INICIAR ────────────────
-client.initialize().catch(err => {
-  console.error('Error al iniciar bot:', err);
-  logHistory(`Error crítico: ${err.message}`);
-});
+  // ──────────────── INICIAR ────────────────
+  client.initialize().catch(err => {
+    console.error('Error al iniciar bot:', err);
+    logHistory(`Error crítico: ${err.message}`);
+  });
+}
+
+// Arrancar
+main().catch(console.error);
