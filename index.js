@@ -315,9 +315,21 @@ async function startBot() {
 🎣 *ACTIVIDADES*
 /pesca — pescar (90s)
 /cazar — cazar (120s)
+/dungeon — dungeon vs jefe boss
 /trivia — preguntas
 /responder [resp] — trivia
 /mision — misión diaria
+/alquimia — fusionar 3 ítems
+
+🔮 *ESPECIALES*
+/oraculo — profecía + reward (5min)
+/caja [cant] — caja misteriosa
+/ruleta_rusa — vive o pierde 40%
+/invertir [cant] — inversión c/retorno
+/retorno — cobrar inversión
+/crash [cant] — crash gambling
+/neko — dato neko + bonus
+/apostar_todo — YOLO total (10min)
 
 📊 *INFO*
 /ranklist — top jugadores
@@ -328,6 +340,7 @@ async function startBot() {
 /play [cancion] — MP3 YouTube
 /yt [nombre] — info YouTube
 /tt [url] — info TikTok
+/evento [tipo] — evento global
 
 _NEKOSBOT GACHA v3.0 🐾_`);
         }
@@ -738,6 +751,266 @@ ${barra(user.xp, needed)}
             const { data } = await axios.get(`https://api.lem916.com/api/download/tiktok?url=${encodeURIComponent(body)}&apikey=${API_TT}`, { timeout:30000 });
             await reply(`🎵 *INFO TIKTOK*\n👤 ${data.author||'?'}\n📌 ${data.title||data.desc||'Sin título'}\n🔗 ${data.download_url||data.url||data.video||'No disponible'}`);
           } catch(e) { await reply(`❌ Error: ${e.message}`); }
+        }
+
+        // ──────────── /oraculo ────────────
+        else if (cmd === '/oraculo') {
+          const w = cooldown(senderJid, 'oraculo', 300);
+          if (w > 0) { await reply(`🔮 El oráculo descansa... Vuelve en *${w}s*`); continue; }
+          const profecías = [
+            '🌟 Las estrellas auguran una gran victoria en tu próximo duelo.',
+            '💀 Alguien planea robarte... cuida tus monedas hoy.',
+            '🎴 Una carta legendaria se acerca a tu destino.',
+            '🌊 Las aguas te son favorables — la pesca traerá abundancia.',
+            '⚡ Un golpe de suerte inesperado cambiará tu fortuna.',
+            '🌑 Tiempos oscuros se avecinan. El casino no es tu aliado hoy.',
+            '🦁 El espíritu del león te acompaña — el combate te favorece.',
+            '🎰 Los números giran a tu favor en las próximas horas.',
+            '🐾 Un neko guardián te protege de las pérdidas esta noche.',
+            '💎 La rareza legendaria espera a quien tenga paciencia.',
+            '🔥 Tu racha diaria alcanzará nuevas alturas si persistes.',
+            '🌺 Regala hoy y el universo te devolverá el triple.',
+          ];
+          const regalo = Math.floor(Math.random() * 150) + 50;
+          const prof = profecías[Math.floor(Math.random() * profecías.length)];
+          user.dinero += regalo;
+          addXP(db, senderJid, 10);
+          saveDB(db);
+          await reply(`🔮 *EL ORÁCULO HABLA...*\n\n_"${prof}"_\n\n✨ Ofrenda del oráculo: +$${fmt(regalo)}\n💰 Saldo: $${fmt(user.dinero)}`);
+        }
+
+        // ──────────── /caja ────────────
+        else if (cmd === '/caja') {
+          const w = cooldown(senderJid, 'caja', 45);
+          if (w > 0) { await reply(`📦 Cooldown: *${w}s*`); continue; }
+          const precio = parseInt(args[1]) || 300;
+          if (precio < 100) { await reply('❌ Mínimo $100'); continue; }
+          if (user.dinero < precio) { await reply(`❌ No tienes $${fmt(precio)}`); continue; }
+          user.dinero -= precio;
+          const roll = Math.random() * 100;
+          let resultado;
+          if (roll < 5)        resultado = { emoji:'💎', tier:'ULTRA',     multi: 20, msg:'¡¡ULTRA JACKPOT!!' };
+          else if (roll < 15)  resultado = { emoji:'👑', tier:'Legendaria', multi: 8,  msg:'¡LEGENDARIA!' };
+          else if (roll < 30)  resultado = { emoji:'🌟', tier:'Épica',      multi: 3,  msg:'¡Épica!' };
+          else if (roll < 55)  resultado = { emoji:'💙', tier:'Rara',       multi: 1.5, msg:'Rara' };
+          else if (roll < 80)  resultado = { emoji:'⬜', tier:'Común',      multi: 0.8, msg:'Común' };
+          else                 resultado = { emoji:'💀', tier:'Vacía',      multi: 0,   msg:'¡Vacía! Mala suerte' };
+          const ganancia = Math.floor(precio * resultado.multi);
+          user.dinero += ganancia;
+          addXP(db, senderJid, resultado.multi > 1 ? 20 : 5);
+          saveDB(db);
+          const neto = ganancia - precio;
+          const sign = neto >= 0 ? '+' : '';
+          await reply(`📦 *CAJA MISTERIOSA*\n\n${resultado.emoji} Tier: *${resultado.tier}*\n🎉 ${resultado.msg}\n\n💵 Pagaste: $${fmt(precio)}\n💰 Recibiste: $${fmt(ganancia)}\n📊 Neto: ${sign}$${fmt(neto)}\n💳 Saldo: $${fmt(user.dinero)}`);
+        }
+
+        // ──────────── /ruleta_rusa ────────────
+        else if (cmd === '/ruleta_rusa') {
+          const w = cooldown(senderJid, 'rrusa', 180);
+          if (w > 0) { await reply(`🔫 Cooldown: *${w}s*`); continue; }
+          if (!user.vidas) user.vidas = 6;
+          const bala = Math.floor(Math.random() * 6) + 1;
+          const disparo = Math.floor(Math.random() * 6) + 1;
+          if (bala === disparo) {
+            const perdida = Math.floor(user.dinero * 0.40);
+            user.dinero -= perdida;
+            user.vidas = 6;
+            saveDB(db);
+            await reply(`🔫 *RULETA RUSA*\n\n💥 *¡BAM! TE DISPARASTE!*\n😵 Pierdes el 40% de tu dinero\n💸 -$${fmt(perdida)}\n💰 Saldo: $${fmt(user.dinero)}\n\n_Tambor recargado. Inténtalo de nuevo._`);
+          } else {
+            const premio = Math.floor(Math.random() * 400) + 200;
+            user.dinero += premio;
+            addXP(db, senderJid, 30);
+            saveDB(db);
+            await reply(`🔫 *RULETA RUSA*\n\n✅ *¡CLICK! Sobreviviste!*\n😤 Los nervios de acero tienen recompensa\n💰 +$${fmt(premio)}\n💳 Saldo: $${fmt(user.dinero)}\n\n_Posición de la bala: ${bala} | Disparo: ${disparo}_`);
+          }
+        }
+
+        // ──────────── /dungeon ────────────
+        else if (cmd === '/dungeon') {
+          const w = cooldown(senderJid, 'dungeon', 240);
+          if (w > 0) { await reply(`⚔️ Recuperándote del dungeon... *${w}s*`); continue; }
+          const jefes = [
+            { nombre:'🐉 Dragón Neko',   hp:500, reward:800,  xp:60, raro:true  },
+            { nombre:'💀 Lich Gacha',    hp:350, reward:600,  xp:45, raro:true  },
+            { nombre:'🦂 Escorpión SSR', hp:280, reward:450,  xp:35, raro:false },
+            { nombre:'🧟 Zombie Boss',   hp:200, reward:300,  xp:25, raro:false },
+            { nombre:'🐺 Lobo Épico',    hp:150, reward:200,  xp:20, raro:false },
+            { nombre:'🕷️ Araña Común',   hp:80,  reward:100,  xp:10, raro:false },
+          ];
+          const jefe = jefes[Math.floor(Math.random() * jefes.length)];
+          const playerPow = user.nivel * 15 + Math.random() * 80;
+          const bossPow   = jefe.hp * (0.5 + Math.random() * 0.8);
+          const gana = playerPow >= bossPow;
+          if (gana) {
+            user.dinero += jefe.reward;
+            user.victorias++;
+            const lvl = addXP(db, senderJid, jefe.xp);
+            const drop = jefe.raro && Math.random() < 0.3;
+            if (drop) user.inventario.push({ nombre:`${jefe.nombre.split(' ')[0]} Alma`, emoji:'💠', fecha:Date.now() });
+            saveDB(db);
+            let r = `⚔️ *DUNGEON*\n\n🗡️ Encuentras a ${jefe.nombre}!\n\n💥 *¡VICTORIA!*\n💰 +$${fmt(jefe.reward)}\n✨ +${jefe.xp} XP`;
+            if (drop) r += `\n💠 Drop raro: *${jefe.nombre.split(' ')[0]} Alma*!`;
+            if (lvl) r += `\n\n🎉 *¡NIVEL ${user.nivel}!*`;
+            r += `\n💳 Saldo: $${fmt(user.dinero)}`;
+            await reply(r);
+          } else {
+            const perdida = Math.floor(user.dinero * 0.15);
+            user.dinero = Math.max(0, user.dinero - perdida);
+            user.derrotas++;
+            saveDB(db);
+            await reply(`⚔️ *DUNGEON*\n\n🗡️ Encuentras a ${jefe.nombre}!\n\n💀 *¡DERROTA!*\n😭 El jefe era demasiado fuerte\n💸 Perdiste: -$${fmt(perdida)}\n💰 Saldo: $${fmt(user.dinero)}\n\n_Sube de nivel para enfrentar jefes más duros._`);
+          }
+        }
+
+        // ──────────── /invertir ────────────
+        else if (cmd === '/invertir') {
+          const cant = parseInt(args[1]);
+          if (!cant || cant < 100) { await reply('❌ Uso: /invertir [cantidad] (mín $100)'); continue; }
+          if (user.dinero < cant) { await reply(`❌ No tienes $${fmt(cant)}`); continue; }
+          if (user.inversion) { await reply(`📈 Ya tienes $${fmt(user.inversion.monto)} invertidos\nUsa /retorno para cobrar`); continue; }
+          user.dinero -= cant;
+          user.inversion = { monto: cant, ts: Date.now() };
+          saveDB(db);
+          await reply(`📈 *INVERSIÓN REGISTRADA*\n💵 Invertiste: $${fmt(cant)}\n⏳ Rendimiento: 5–40% en 10 minutos\n📊 Usa */retorno* para cobrar\n💰 Saldo: $${fmt(user.dinero)}`);
+        }
+
+        // ──────────── /retorno ────────────
+        else if (cmd === '/retorno') {
+          if (!user.inversion) { await reply('📉 No tienes inversiones activas\nUsa /invertir [cantidad]'); continue; }
+          const elapsed = (Date.now() - user.inversion.ts) / 1000 / 60; // minutos
+          if (elapsed < 2) {
+            await reply(`⏳ Tu inversión aún madura...\nEspera *${Math.ceil(2 - elapsed)} minutos* más`);
+            continue;
+          }
+          // Rendimiento: +5% a +40% por cada 10 min, máx 200%
+          const ciclos = Math.min(Math.floor(elapsed / 2), 10);
+          const rendimiento = 1 + (ciclos * (0.05 + Math.random() * 0.035));
+          const retorno = Math.floor(user.inversion.monto * rendimiento);
+          const ganancia = retorno - user.inversion.monto;
+          user.dinero += retorno;
+          addXP(db, senderJid, 20);
+          delete user.inversion;
+          saveDB(db);
+          await reply(`📈 *RETORNO DE INVERSIÓN*\n💵 Invertido: $${fmt(retorno - ganancia)}\n📊 Rendimiento: +${Math.round((rendimiento-1)*100)}%\n💰 Retorno: $${fmt(retorno)}\n🤑 Ganancia: +$${fmt(ganancia)}\n💳 Saldo: $${fmt(user.dinero)}`);
+        }
+
+        // ──────────── /alquimia ────────────
+        else if (cmd === '/alquimia') {
+          const w = cooldown(senderJid, 'alquimia', 120);
+          if (w > 0) { await reply(`⚗️ El caldero se enfría... *${w}s*`); continue; }
+          if (user.inventario.length < 3) { await reply(`⚗️ *ALQUIMIA*\nNecesitas al menos 3 ítems en el inventario\nTienes: ${user.inventario.length}/3`); continue; }
+          // Consume los últimos 3 items
+          const usados = user.inventario.splice(-3);
+          const resultados = [
+            { nombre:'🌀 Esfera del Caos',   emoji:'🌀', valor:600  },
+            { nombre:'⚡ Runa del Trueno',    emoji:'⚡', valor:900  },
+            { nombre:'🔥 Cristal de Fuego',   emoji:'🔥', valor:1200 },
+            { nombre:'❄️ Fragmento de Hielo', emoji:'❄️', valor:750  },
+            { nombre:'💫 Polvo de Estrellas', emoji:'💫', valor:1500 },
+            { nombre:'👁️ Ojo del Abismo',     emoji:'👁️', valor:2000 },
+            { nombre:'🌸 Pétalo Eterno',      emoji:'🌸', valor:500  },
+            { nombre:'🗡️ Fragmento de Dios',  emoji:'🗡️', valor:3000 },
+          ];
+          const resultado = resultados[Math.floor(Math.random() * resultados.length)];
+          user.inventario.push({ nombre: resultado.nombre, emoji: resultado.emoji, fecha: Date.now() });
+          user.dinero += resultado.valor;
+          addXP(db, senderJid, 25);
+          saveDB(db);
+          const nombresUsados = usados.map(i => i.emoji || '🎴').join(' + ');
+          await reply(`⚗️ *ALQUIMIA*\n\n${nombresUsados}\n⬇️\n${resultado.emoji} *${resultado.nombre}*\n\n💰 Valor del ítem: +$${fmt(resultado.valor)}\n✨ La magia transforma lo ordinario en extraordinario`);
+        }
+
+        // ──────────── /crash ────────────
+        else if (cmd === '/crash') {
+          const w = cooldown(senderJid, 'crash', 30);
+          if (w > 0) { await reply(`💥 Cooldown: *${w}s*`); continue; }
+          const apuesta = parseInt(args[1]) || 100;
+          if (apuesta < 50) { await reply('❌ Mínimo $50'); continue; }
+          if (user.dinero < apuesta) { await reply(`❌ No tienes $${fmt(apuesta)}`); continue; }
+          // Generar multiplicador de crash (distribución exponencial)
+          const crashPoint = Math.max(1.0, +(Math.pow(Math.random(), -0.5) * 0.6).toFixed(2));
+          // El jugador "salió" en un punto aleatorio hasta crashPoint
+          const salidaMax = crashPoint;
+          const salida = +(1.0 + Math.random() * (salidaMax - 1.0)).toFixed(2);
+          const gana = salida < crashPoint;
+          if (gana) {
+            const ganado = Math.floor(apuesta * salida) - apuesta;
+            user.dinero += ganado;
+            addXP(db, senderJid, 15);
+            saveDB(db);
+            await reply(`📈 *CRASH GAME*\n\n🚀 Cohete despegando...\n📊 Saliste en: *x${salida}*\n💥 Crash en: x${crashPoint}\n\n✅ ¡Saliste a tiempo!\n💰 +$${fmt(ganado)}\n💳 Saldo: $${fmt(user.dinero)}`);
+          } else {
+            user.dinero -= apuesta;
+            saveDB(db);
+            await reply(`📈 *CRASH GAME*\n\n🚀 Cohete despegando...\n💥 *¡CRASH en x${crashPoint}!*\n\nDemasiado tarde para salir\n❌ -$${fmt(apuesta)}\n💳 Saldo: $${fmt(user.dinero)}`);
+          }
+        }
+
+        // ──────────── /neko ────────────
+        else if (cmd === '/neko') {
+          const w = cooldown(senderJid, 'neko', 60);
+          if (w > 0) { await reply(`🐾 El neko duerme... *${w}s*`); continue; }
+          const datos = [
+            { emoji:'😸', dato:'Los gatos pasan el 70% de su vida durmiendo. ¡Vida de neko!', tipo:'Dato Felino' },
+            { emoji:'🐾', dato:'Un gato puede hacer más de 100 vocalizaciones distintas. ¡Son todo un idioma!', tipo:'Dato Vocal' },
+            { emoji:'👁️', dato:'Los gatos tienen visión nocturna 6 veces mejor que los humanos.', tipo:'Dato Visual' },
+            { emoji:'💨', dato:'El ronroneo de un gato ocurre entre 25-150 Hz — frecuencia que cura huesos.', tipo:'Dato Místico' },
+            { emoji:'🎴', dato:'En Japón, los "neko cafés" tienen lista de espera de hasta 3 meses.', tipo:'Dato Cultural' },
+            { emoji:'🌙', dato:'Los gatos negros son símbolo de buena suerte en Japón y Escocia.', tipo:'Dato de la Suerte' },
+            { emoji:'⚡', dato:'Un gato doméstico puede correr hasta 48 km/h en sprints cortos.', tipo:'Dato Veloz' },
+            { emoji:'🧠', dato:'El cerebro de un gato es 90% similar al cerebro humano en estructura.', tipo:'Dato Inteligente' },
+            { emoji:'🎵', dato:'Los gatos oyen frecuencias de hasta 65,000 Hz. Los humanos solo 20,000.', tipo:'Dato Auditivo' },
+            { emoji:'🌺', dato:'El "kneading" (amasar) es un comportamiento de cachorro que los gatos mantienen de adultos.', tipo:'Dato Tierno' },
+          ];
+          const d = datos[Math.floor(Math.random() * datos.length)];
+          const bonus = Math.floor(Math.random() * 80) + 20;
+          user.dinero += bonus;
+          saveDB(db);
+          await reply(`🐾 *NEKOPEDIA*\n📖 Tipo: _${d.tipo}_\n\n${d.emoji} ${d.dato}\n\n🎁 Bonus de conocimiento: +$${fmt(bonus)}\n💰 Saldo: $${fmt(user.dinero)}`);
+        }
+
+        // ──────────── /evento ────────────  (owner)
+        else if (cmd === '/evento') {
+          if (!isOwner) { await reply('🔒 Solo el owner puede activar eventos'); continue; }
+          const tipo = (args[1] || 'lluvia').toLowerCase();
+          const eventos = {
+            lluvia:  { nombre:'🌧️ Lluvia de Monedas',  msg:'¡LLUVIA DE MONEDAS!',   bonus: 500,  xp: 30 },
+            doble:   { nombre:'⚡ XP Doble',            msg:'¡XP DOBLE POR 1 HORA!', bonus: 0,    xp: 100 },
+            fiesta:  { nombre:'🎉 Fiesta Neko',          msg:'¡FIESTA NEKO!',         bonus: 1000, xp: 50 },
+            maldicion:{ nombre:'💀 Maldición Gacha',    msg:'¡MALDICIÓN GACHA!',     bonus: -200, xp: 0  },
+            bonus:   { nombre:'🌟 Bonus Global',         msg:'¡BONUS GLOBAL!',        bonus: 750,  xp: 40 },
+          };
+          const ev = eventos[tipo] || eventos.lluvia;
+          const db2 = loadDB();
+          let afectados = 0;
+          for (const uid of Object.keys(db2.users)) {
+            db2.users[uid].dinero = Math.max(0, (db2.users[uid].dinero || 0) + ev.bonus);
+            if (ev.xp > 0) addXP(db2, uid, ev.xp);
+            afectados++;
+          }
+          saveDB(db2);
+          await reply(`🌐 *EVENTO GLOBAL: ${ev.nombre}*\n\n📣 ${ev.msg}\n💰 Cada jugador: ${ev.bonus >= 0 ? '+' : ''}$${fmt(ev.bonus)}\n✨ XP Extra: +${ev.xp}\n👥 Jugadores afectados: ${afectados}\n\n_Evento activado por el owner_`);
+        }
+
+        // ──────────── /apostar_todo ────────────
+        else if (cmd === '/apostar_todo' || cmd === '/yolo') {
+          const w = cooldown(senderJid, 'yolo', 600);
+          if (w > 0) { await reply(`🎲 YOLO cooldown: *${Math.floor(w/60)}m ${w%60}s*`); continue; }
+          if (user.dinero < 100) { await reply('💀 No tienes ni para apostar. Usa /trabajar'); continue; }
+          const todo = user.dinero;
+          const gana = Math.random() < 0.45;
+          if (gana) {
+            const multi = +(1.5 + Math.random() * 2.5).toFixed(2);
+            user.dinero = Math.floor(todo * multi);
+            addXP(db, senderJid, 50);
+            saveDB(db);
+            await reply(`🎲 *YOLO — APOSTAR TODO*\n\n💵 Apostaste: $${fmt(todo)}\n\n🏆 *¡¡¡GANASTE!!!*\n✨ Multiplicador: x${multi}\n💰 Total: $${fmt(user.dinero)}\n\n_Sabías que el 90% de los que apostaron todo... también perdieron todo._`);
+          } else {
+            user.dinero = 50; // Se queda con $50 para no quedar en 0
+            saveDB(db);
+            await reply(`🎲 *YOLO — APOSTAR TODO*\n\n💵 Apostaste: $${fmt(todo)}\n\n💀 *¡¡¡LO PERDISTE TODO!!!*\n😭 Solo te quedan: $50\n\n_La ruleta de la vida no perdona._`);
+          }
         }
 
       } catch (e) {
