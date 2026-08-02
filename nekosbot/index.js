@@ -215,11 +215,23 @@ async function startBot() {
     }
 
     if (connection === 'close') {
-      const code = new Boom(lastDisconnect?.error)?.output?.statusCode;
-      const reconectar = code !== DisconnectReason.loggedOut;
-      console.log(reconectar ? '🔄 Reconectando en 5 seg...' : '🔴 Sesión cerrada. Borra auth_info y reinicia.');
+      const err  = new Boom(lastDisconnect?.error);
+      const code = err?.output?.statusCode;
+      console.log(`🔴 Conexión cerrada. Código: ${code} (${err?.message || ''})`);
       logHistory(`Desconectado: ${code}`);
-      if (reconectar) { pairDone = false; setTimeout(startBot, 5000); }
+
+      if (code === DisconnectReason.loggedOut || code === DisconnectReason.badSession || code === 401 || code === 500) {
+        // Sesión inválida — borrar auth y reconectar fresco
+        console.log('🗑️  Borrando sesión inválida y reiniciando...');
+        try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); fs.mkdirSync(AUTH_DIR, { recursive: true }); } catch(_){}
+      }
+      // Siempre reconectar salvo reemplazo de sesión en otro dispositivo
+      if (code !== DisconnectReason.connectionReplaced) {
+        pairDone = false;
+        setTimeout(startBot, 5000);
+      } else {
+        console.log('⚠️  Sesión abierta en otro dispositivo. Deteniéndose.');
+      }
     } else if (connection === 'open') {
       console.log('✅ NEKOSBOT GACHA conectado y activo!');
       logHistory('Bot conectado');
