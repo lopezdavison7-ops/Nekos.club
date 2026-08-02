@@ -9,6 +9,10 @@ node_modules/
 nekosbot/auth_info/
 auth_info/
 
+# package-lock.json tiene URLs de proxy de Replit — no subir
+nekosbot/package-lock.json
+package-lock.json
+
 # Variables de entorno
 .env
 
