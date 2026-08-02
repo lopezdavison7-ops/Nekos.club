@@ -5,6 +5,10 @@ node_modules/
 .wwebjs_auth/
 .wwebjs_cache/
 
+# Baileys auth (sesión - no subir al repo)
+nekosbot/auth_info/
+auth_info/
+
 # Variables de entorno
 .env
 
