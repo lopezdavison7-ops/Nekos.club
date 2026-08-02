@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: nekosbot-gacha
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: nekosbot
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: PHONE_NUMBER
+        sync: false          # lo pones tú en el dashboard de Render
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: auth-data
+      mountPath: /opt/render/project/src/nekosbot/auth_info
+      sizeGB: 1

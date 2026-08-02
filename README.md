@@ -1,136 +1,91 @@
-# 🎮 NEKOSBOT GACHA
+# 🐾 NEKOSBOT GACHA v3.0
 
-Bot de WhatsApp con sistema Gacha completo, economía y juegos.  
-Hecho para funcionar 24/7 en Render.
+Bot de WhatsApp con sistema Gacha completo, powered by **Baileys** (sin Puppeteer, sin Chrome).
 
----
-
-## 🚀 Despliegue en Render
-
-| Campo | Valor |
-|-------|-------|
-| **Build Command** | `npm install` |
-| **Start Command** | `node index.js` |
-| **Runtime** | Node.js 18+ |
-
-### Variables de Entorno en Render
-
-| Variable | Valor |
-|----------|-------|
-| `OWNER`  | `50578391933@c.us` |
-| `API_YT` | `lem916` |
-| `API_TT` | `lem916` |
+## ✨ Características
+- 🔑 Vinculación por **código de 8 dígitos** (sin QR)
+- ⚡ Sin Puppeteer — puro WebSocket
+- 🎮 +20 comandos: Gacha, Casino, Economía, Duelos, Pesca, Trivia...
+- 🔄 Reconexión automática
+- 🌐 Compatible con **Render** (servidor HTTP integrado)
 
 ---
 
-## 📱 Vincular WhatsApp
+## 🚀 Deploy en Render
 
-Al iniciar el bot por **primera vez**, en la consola de Render aparecerá:
+1. Fork/push este repo a tu GitHub
+2. En [Render](https://render.com) → **New Web Service** → conecta tu repo
+3. Configuración:
+   - **Root Directory:** `nekosbot`
+   - **Build Command:** `npm install`
+   - **Start Command:** `node index.js`
+4. **Environment Variables:**
+   - `PHONE_NUMBER` = tu número con código de país (ej: `525548289402`)
+   - `OWNER` = tu número para comandos de owner
+5. **Disk** (para que la sesión persista):
+   - Mount Path: `/opt/render/project/src/nekosbot/auth_info`
+   - Size: 1 GB
+6. Deploy → espera los logs → copia el **código de 8 dígitos**
+7. En WhatsApp → Configuración → Dispositivos vinculados → Vincular con número → ingresa el código
 
+---
+
+## 🖥️ Correr localmente
+
+```bash
+cd nekosbot
+npm install
+node index.js
 ```
-╔══════════════════════════════════════╗
-║  📱 CÓDIGO DE EMPAREJAMIENTO         ║
-║  🔑 CÓDIGO: XXXX-XXXX               ║
-║  📞 NÚMERO: 50578391933              ║
-╚══════════════════════════════════════╝
-```
 
-1. Abre WhatsApp en tu celular
-2. Ve a **Ajustes → Dispositivos vinculados → Vincular dispositivo**
-3. Selecciona **"Vincular con número de teléfono"**
-4. Ingresa el código de 8 dígitos que aparece en la consola
+Configura la variable de entorno o ingresa el número cuando lo pida.
 
 ---
 
 ## 📋 Comandos
 
-### 💰 Economía
 | Comando | Descripción |
 |---------|-------------|
-| `/perfil` | Tu perfil gacha (dinero, banco, nivel, XP) |
-| `/trabajar` | Ganar monedas (cooldown 1 min) |
-| `/diario` | Recompensa diaria con streak |
-| `/banco [cant]` | Depositar en banco |
-| `/retirar [cant]` | Retirar del banco |
-| `/transferir @user [cant]` | Enviar dinero |
-| `/regalo @user [cant]` | Regalar dinero |
-
-### 🗡️ Combate
-| Comando | Descripción |
-|---------|-------------|
-| `/robar @user` | Robar 25% del dinero (60% éxito, cooldown 5 min) |
-| `/duel @user [apuesta]` | Duelo PvP por dinero |
-
-### 🎰 Casino
-| Comando | Descripción |
-|---------|-------------|
-| `/ruleta [cant]` | Ruleta (cooldown 15s) |
-| `/slots [cant]` | Tragamonedas |
-| `/dado [cant]` | Tirar dados |
-| `/moneda [cant] [cara/cruz]` | Cara o cruz |
-| `/blackjack [cant]` | Blackjack |
-
-### 🎴 Gacha
-| Comando | Descripción |
-|---------|-------------|
-| `/playasmollete` | Giro gacha gratis (cooldown 30s) |
-| `/tienda` | Ver items disponibles |
-| `/comprar [id]` | Comprar item de la tienda |
-| `/inventario` | Ver tus items |
-
-### 🎣 Actividades
-| Comando | Descripción |
-|---------|-------------|
-| `/pesca` | Pescar items (cooldown 90s) |
-| `/cazar` | Cazar recursos (cooldown 120s) |
-| `/trivia` | Trivia por dinero |
-| `/responder [resp]` | Responder trivia activa |
-| `/mision` | Ver/asignar misión diaria |
-
-### 📊 Info
-| Comando | Descripción |
-|---------|-------------|
-| `/menu` | Todos los comandos |
-| `/ranklist` | Top 10 jugadores |
+| `/menu` | Lista completa de comandos |
+| `/perfil` | Tu perfil y estadísticas |
+| `/trabajar` | Ganar monedas (CD: 1 min) |
+| `/diario` | Recompensa diaria |
+| `/banco`, `/retirar` | Gestión bancaria |
+| `/transferir @user cant` | Transferir dinero |
+| `/robar @user` | Intentar robar (CD: 5 min) |
+| `/duel @user apuesta` | Duelo 1v1 |
+| `/ruleta cant` | Ruleta |
+| `/slots cant` | Tragamonedas |
+| `/dado cant` | Dados |
+| `/moneda cant cara\|cruz` | Cara o cruz |
+| `/blackjack cant` | Blackjack |
+| `/playasmollete` | Giro Gacha gratuito |
+| `/tienda` | Ver tienda |
+| `/comprar id` | Comprar item |
+| `/inventario` | Ver inventario |
+| `/pesca` | Pescar (CD: 90s) |
+| `/cazar` | Cazar (CD: 120s) |
+| `/trivia` | Pregunta trivia |
+| `/mision` | Misión diaria |
+| `/ranklist` | Top jugadores |
 | `/ping` | Estado del bot |
 | `/uptime` | Tiempo activo |
-
-### 🎵 Media (solo Owner)
-| Comando | Descripción |
-|---------|-------------|
-| `/play [cancion]` | Descargar MP3 de YouTube |
-| `/yt [nombre/url]` | Info de YouTube |
-| `/tt [url]` | Info de TikTok |
+| `/play cancion` | *(Owner)* MP3 YouTube |
+| `/yt url` | *(Owner)* Info YouTube |
+| `/tt url` | *(Owner)* Info TikTok |
 
 ---
 
-## 📁 Estructura de Archivos
+## ⚙️ Variables de entorno
 
-```
-Nekos.club/
-├── index.js           # Bot principal
-├── package.json       # Dependencias
-├── .gitignore         # Archivos ignorados
-├── database.json      # Base de datos JSON
-├── .env.example       # Variables de entorno de ejemplo
-├── documentos/
-│   └── historial.txt  # Historial de comandos
-└── README.md          # Este archivo
-```
+| Variable | Descripción | Default |
+|----------|-------------|---------|
+| `PHONE_NUMBER` | Número a vincular (con código país) | *se pregunta al inicio* |
+| `OWNER` | Número del dueño del bot | `50578391933` |
+| `PORT` | Puerto HTTP (Render lo asigna solo) | `3000` |
+| `API_YT` | API key YouTube | `lem916` |
+| `API_TT` | API key TikTok | `lem916` |
 
 ---
 
-## ⚙️ Rareza del Gacha
-
-| Rareza | Probabilidad | Bonus Coins |
-|--------|-------------|-------------|
-| ⬜ Común | 40% | +50 |
-| ⬜ Común 2 | 30% | +60 |
-| 🟦 Raro | 15% | +200 |
-| 🟣 Épico | 10% | +500 |
-| 🟡 Legendaria | 4% | +1500 |
-| ✨ ULTRA | 1% | +5000 |
-
----
-
-_NEKOSBOT GACHA v2.0 — by lopezdavison7-ops 🐾_
+*by lopezdavison7-ops — NEKOSBOT GACHA v3.0*
