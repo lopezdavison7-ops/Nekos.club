@@ -83,9 +83,7 @@ Configura la variable de entorno o ingresa el número cuando lo pida.
 | `PHONE_NUMBER` | Número a vincular (con código país) | *se pregunta al inicio* |
 | `OWNER` | Número del dueño del bot | `50578391933` |
 | `PORT` | Puerto HTTP (Render lo asigna solo) | `3000` |
-| `API_YT` | API key YouTube | `lem916` |
-| `API_TT` | API key TikTok | `lem916` |
-
+| `
 ---
 
 *by lopezdavison7-ops — NEKOSBOT GACHA v3.0*
