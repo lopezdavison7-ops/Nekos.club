@@ -1,19 +1,17 @@
 {
   "name": "nekosbot-gacha",
-  "version": "3.0.0",
-  "description": "NEKOSBOT GACHA - Bot WhatsApp con Baileys + sistema Gacha",
+  "version": "3.1.0",
+  "description": "NEKOSBOT GACHA v3.1 - Bot WhatsApp PRO con Baileys",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js"
   },
-  "keywords": ["whatsapp", "bot", "gacha", "baileys"],
-  "author": "lopezdavison7-ops",
-  "license": "MIT",
   "dependencies": {
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "latest",
     "axios": "^1.6.8",
+    "node-cache": "^5.1.2",
     "pino": "^8.21.0",
     "qrcode-terminal": "^0.12.0"
   },
